@@ -1,0 +1,982 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Source Code Of Spin Wheel</title>
+    <!---------------  CSS  --------------------->
+
+
+    <!---------------  Chart JS  --------------------->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <!---------------  Chart JS Plugin  --------------------->
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.1.0/chartjs-plugin-datalabels.min.js"></script>
+    <style>
+        /*-----------------  GOOGLE FONTS  -----------------*/
+        @import url("https://fonts.googleapis.com/css2?family=PT+Serif&display=swap");
+
+        /*-----------------  VARIABLES  -----------------*/
+        :root {
+            /* Colors */
+            --white_color: rgb(255, 255, 255);
+            --gold_color: rgb(255, 215, 0);
+            --green_color: rgb(45, 252, 26);
+            --body_background: linear-gradient(to right,
+                    #141e30,
+                    #243b55);
+            --spin_background: linear-gradient(to right,
+                    #fc4a1a,
+                    #f7b733);
+        }
+
+        /*-----------------  Base  -----------------*/
+        * {
+            box-sizing: border-box;
+            padding: 0;
+            margin: 0;
+            font-family: "PT Serif", serif;
+        }
+
+        body {
+            height: 100vh;
+            /* background: var(--body_background); */
+        }
+
+        /*-----------------  Styling Start  -----------------*/
+        h1 {
+            position: absolute;
+            font-size: 4rem;
+            top: 10%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--gold_color);
+        }
+
+        .container {
+            width: 90%;
+            max-width: 34.37rem;
+            margin-top: 0;
+            max-height: 90vh;
+            position: absolute;
+            transform: translate(-50%, -50%);
+            top: 50%;
+            left: 50%;
+            padding: 3rem;
+            padding-top: 0;
+            border-radius: 1rem;
+        }
+
+        .wheel_box {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        #spinWheel {
+            max-height: inherit;
+            width: inherit;
+            transform: rotate(270deg);
+        }
+
+        #spin_btn {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            top: 50%;
+            left: 50%;
+            height: 26%;
+            width: 26%;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 0;
+            background: var(--spin_background);
+            color: var(--white_color);
+            text-transform: uppercase;
+            font-size: 1.8rem;
+            letter-spacing: 0.1rem;
+            font-weight: 600;
+        }
+
+        .fa-solid {
+            position: absolute;
+            top: -8%;
+            left: calc(50% - 21px);
+            font-size: 4rem;
+            color: var(--green_color);
+            /* transform: rotate(-225deg); */
+        }
+
+        #text {
+            font-size: 1.5rem;
+            text-align: center;
+            margin-top: 1.5rem;
+            color: black;
+            font-weight: 500;
+        }
+
+        /* Add these styles for the modal */
+
+        /* Modal box styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 28% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 100%;
+            max-width: 400px;
+            height: 112px;
+            text-align: center;
+            align-items: center;
+            font-size: 18px;
+            z-index: 100;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 19px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .tryButton {
+            width: 120px;
+            padding: 10px 0;
+            border: 2.5px solid #424ae0;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .sections {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #sectionCount {
+            width: 50px;
+            font-size: 17px;
+            text-align: center;
+            font-weight: bold;
+            margin: 4px;
+        }
+
+        .labelOfsection {
+            width: 235px;
+            font-size: 17px;
+            text-align: center;
+            font-weight: bold;
+            margin: 4px;
+        }
+
+        .controlsButtons {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #applySectionCountBtn {
+            width: 80px;
+        }
+
+        .myAddButton {
+            width: 100%;
+            height: 60px;
+            /* border: 1px solid black; */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 5px;
+            box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+        }
+
+        #addNameBtn {
+            width: 100px;
+            margin: 5px;
+            border-radius: 5px;
+            border: none;
+            padding: 6px;
+            background: #153e57;
+            color: white;
+        }
+
+        #addNameBtn:hover {
+            scale: 1.05;
+        }
+
+        #restData {
+            width: 90px;
+            margin: 5px;
+            border-radius: 5px;
+            border: none;
+            padding: 6px;
+            background: #153e57;
+            color: white;
+        }
+
+        #restData:hover {
+            scale: 1.05;
+        }
+
+        .myTable {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            max-height: 250px;
+            /* border: 1px solid; */
+            overflow: scroll;
+            scrollbar-width: thin;
+            /* "auto" or "thin" */
+            scrollbar-color: blue orange;
+
+            margin: 5px;
+            box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+        }
+
+        #canvas {
+            position: absolute;
+            overflow-y: hidden;
+            overflow-x: hidden;
+            width: 100%;
+            margin: 0;
+            top: 0;
+            left: 0;
+            height: 100%;
+            z-index: 10;
+            display: none;
+        }
+
+        th,
+        td {
+            width: 80px;
+            align-items: center;
+            text-align: center;
+            height: 25px;
+        }
+
+        /* For screen width up to 720px */
+        @media only screen and (max-width: 720px) {
+    /* Adjustments for smaller screens */
+    .container {
+        width: 100%;
+        padding: 0;
+    }
+    #spinWheel {
+        max-width: 100%;
+        height: auto;
+    }
+    #spin_btn {
+        font-size: 1.5rem;
+    }
+    .fa-solid {
+        font-size: 3rem;
+    }
+    #text {
+        font-size: 1.3rem;
+    }
+    .modal-content{
+        margin: auto;
+    }
+    .modal{
+      
+        justify-content: center;
+        align-items: center;
+    }
+}
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div style="display: flex; text-align: center">
+            <!-- <i style="
+                        margin: auto;
+                        font-size: 50px;
+                        color: greenyellow;
+                        position: relative;
+                        top: 20px;
+                        z-index: 100;
+                    " class="fa fa-sort-desc"></i> -->
+            <img style="
+        margin: auto;
+        font-size: 50px;
+        color: greenyellow;
+        position: relative;
+        top: 30px;
+        height: 50px;
+        z-index: 100;" class="fa fa-sort-desc"
+                src="https://media.geeksforgeeks.org/wp-content/uploads/20240108170123/Untitled-1.png" alt="">
+        </div>
+        <div class="wheel_box">
+            <canvas id="spinWheel"></canvas>
+            <button id="spin_btn">Spin</button>
+            <!-- <i class="fa-solid fa-sort-desc"></i> -->
+        </div>
+        <div>
+            <p id="text">Wheel Of Fortune</p>
+        </div>
+        <!-- <div class="sections">
+            <label class="labelOfsection" for="sectionCount">Number of Sections (1-360):</label>
+            <input type="number" id="sectionCount" min="1" max="360" value="6" />
+
+        </div>
+        <div class="controlsButtons">
+            <button id="applySectionCountBtn">
+                Apply
+            </button>
+        </div> -->
+
+        <div class="myAddButton">
+            <button id="addNameBtn">Add Name</button>
+            <button id="restData">RESET</button>
+        </div>
+        <div class="myTable">
+            <table id="nameTable">
+                <thead>
+                    <tr>
+                        <th class="sn">#</th>
+                        <th>Name</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- The initial row -->
+                    <!-- <tr>
+                        <td>1</td>
+                        <td><input type="text" class="nameInput" placeholder="Enter a name" /></td>
+                    </tr> -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <p id="text2"></p>
+            <button class="tryButton" id="try">
+                TRY AGAIN
+            </button>
+        </div>
+    </div>
+    <canvas id="canvas"></canvas>
+    <!---------------  SCRIPT  --------------------->
+    <script>
+        let defaultNames = [];
+
+        /* --------------- Spin Wheel  --------------------- */
+        const spinWheel =
+            document.getElementById("spinWheel");
+        const spinBtn =
+            document.getElementById("spin_btn");
+        const text = document.getElementById("text");
+        let spinValues = [];
+        /* --------------- Size Of Each Piece  --------------------- */
+        const size = [
+            10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+            10,
+        ];
+        /* --------------- Background Colors  --------------------- */
+        var spinColors = [
+            "#E74C3C",
+            "#7D3C98",
+            "#2E86C1",
+            "#138D75",
+            "#F1C40F",
+            "#D35400",
+            "#138D75",
+            "#F1C40F",
+            "#b163da",
+            "#E74C3C",
+            "#7D3C98",
+            "#138D75",
+        ];
+        let spinChart = new Chart(spinWheel, {
+            plugins: [ChartDataLabels],
+            type: "pie",
+            data: {
+                labels: [
+                    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+                    12,
+                ],
+                datasets: [
+                    {
+                        backgroundColor: spinColors,
+                        data: size,
+                    },
+                ],
+            },
+            options: {
+                responsive: true,
+                animation: { duration: 0 },
+                plugins: {
+                    tooltip: false,
+                    legend: {
+                        display: false,
+                    },
+                    datalabels: {
+                        rotation: 90,
+                        color: "#ffffff",
+                        formatter: (_, context) =>
+                            context.chart.data.labels[
+                            context.dataIndex
+                            ],
+                        font: { size: 20 },
+                        anchor: "end",
+                        align: "start",
+                    },
+                },
+            },
+        });
+
+        /* --------------- Display Value Based On The Angle --------------------- */
+        const generateValue = (angleValue) => {
+            for (let i of spinValues) {
+                if (
+                    angleValue >= i.minDegree &&
+                    angleValue <= i.maxDegree
+                ) {
+                    setTimeout(() => {
+                        modal.style.display = "flex";
+                        startAnimation();
+                        canvas.style.display = "block";
+                    }, 200);
+
+                    text.innerText = "Wheel Of Fortune";
+                    text2.innerText =
+                        "The Result is: " +
+                        i.value +
+                        "!";
+                    spinBtn.disabled = false;
+                    break;
+                }
+            }
+        };
+        /* --------------- Spinning Code --------------------- */
+        let count = 0;
+        let resultValue = 101;
+        spinBtn.addEventListener("click", () => {
+            spinBtn.disabled = true;
+            text.innerHTML = `<p>Best Of Luck!</p>`;
+            let randomDegree = Math.floor(
+                Math.random() * (355 - 0 + 1) + 0
+            );
+            let rotationInterval = window.setInterval(
+                () => {
+                    spinChart.options.rotation =
+                        spinChart.options.rotation +
+                        resultValue;
+                    spinChart.update();
+                    if (
+                        spinChart.options.rotation >=
+                        360
+                    ) {
+                        count += 1;
+                        resultValue -= 5;
+                        spinChart.options.rotation = 0;
+                    } else if (
+                        count > 15 &&
+                        spinChart.options.rotation ==
+                        randomDegree
+                    ) {
+                        generateValue(randomDegree);
+                        clearInterval(rotationInterval);
+                        count = 0;
+                        resultValue = 101;
+                    }
+                },
+                10
+            );
+        });
+        /* --------------- End Spin Wheel  --------------------- */
+        const updateSpin = () => {
+            let sectionCount = defaultNames.length;
+            let newSpinValues = [];
+            console.log("length", defaultNames.length);
+            if (sectionCount) {
+                console.log(sectionCount, defaultNames);
+                const angleStep = 360 / sectionCount;
+
+                let inc = 360 / sectionCount;
+                let angle = 90;
+                for (let i = 0; i < sectionCount; i++) {
+                    let minDegree = angle + 1;
+                    angle = angle + inc;
+                    let maxDegree = angle;
+                    if (maxDegree > 360) {
+                        // let temp360 = 360;
+                        // let temp = 1;
+                        maxDegree = maxDegree % 360;
+                        newSpinValues.push({
+                            minDegree:
+                                minDegree.toFixed(0),
+                            maxDegree: 360,
+                            value: defaultNames[
+                                sectionCount - i - 1
+                            ],
+                        });
+                        newSpinValues.push({
+                            minDegree: 0,
+                            maxDegree:
+                                maxDegree.toFixed(0),
+                            value: defaultNames[
+                                sectionCount - i - 1
+                            ],
+                        });
+                    } else {
+                        newSpinValues.push({
+                            minDegree:
+                                minDegree.toFixed(0),
+                            maxDegree:
+                                maxDegree.toFixed(0),
+                            value: defaultNames[
+                                sectionCount - i - 1
+                            ],
+                        });
+                    }
+                    angle = angle % 360;
+                }
+            } else {
+                // alert("Please enter a valid section.");
+                newSpinValues = [
+                    {
+                        minDegree: "91",
+                        maxDegree: "150",
+                        value: "Frank",
+                    },
+                    {
+                        minDegree: "151",
+                        maxDegree: "210",
+                        value: "Eva",
+                    },
+                    {
+                        minDegree: "211",
+                        maxDegree: "270",
+                        value: "David",
+                    },
+                    {
+                        minDegree: "271",
+                        maxDegree: "330",
+                        value: "Charlie",
+                    },
+                    {
+                        minDegree: "331",
+                        maxDegree: 360,
+                        value: "Bob",
+                    },
+                    {
+                        minDegree: 0,
+                        maxDegree: "30",
+                        value: "Bob",
+                    },
+                    {
+                        minDegree: "31",
+                        maxDegree: "90",
+                        value: "Alice",
+                    },
+                ];
+                sectionCount = 6;
+            }
+            spinValues = [...newSpinValues];
+
+            console.log("spinValues", spinValues);
+
+            spinChart.data.labels = Array.from(
+                { length: sectionCount },
+                (_, i) => i + 1
+            );
+            spinChart.data.datasets[0].data =
+                Array.from(
+                    { length: sectionCount },
+                    () => 10
+                );
+            spinChart.update();
+            console.log(spinChart.data);
+        };
+
+        // Get the modal element
+        var modal = document.getElementById("myModal");
+
+        // Get the button that opens the modal
+        var btn = document.getElementById("openModal");
+
+        // Get the <span> element that closes the modal
+        var span =
+            document.getElementsByClassName("close")[0];
+
+        // When the user clicks on <span> (x), close the modal
+        span.onclick = function () {
+            modal.style.display = "none";
+            animationStarted = false;
+        };
+
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function (event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+                animationStarted = false;
+            }
+        };
+        var tryClose = document.getElementById("try");
+        tryClose.addEventListener("click", () => {
+            modal.style.display = "none";
+            animationStarted = false;
+        });
+
+        let serialNumber = 0; // Initial serial number
+
+        // Function to add a new row with an input field and delete button
+        const addRowWithInput = () => {
+            const nameTable = document
+                .getElementById("nameTable")
+                .getElementsByTagName("tbody")[0];
+            const newRow = nameTable.insertRow(-1); // Insert a new row at the end of the table
+            const cell1 = newRow.insertCell(0); // Insert a cell for serial number in the new row at index 0
+            const cell2 = newRow.insertCell(1); // Insert a cell for name input in the new row at index 1
+            const cell3 = newRow.insertCell(2); // Insert a cell for delete button in the new row at index 2
+
+            serialNumber++; // Increment the serial number before setting it
+            cell1.textContent = serialNumber; // Set the cell content to the incremented serial number
+
+            const nameInputField =
+                document.createElement("input");
+            nameInputField.value = "";
+            nameInputField.setAttribute("type", "text");
+            nameInputField.setAttribute(
+                "class",
+                "nameInput"
+            );
+            nameInputField.setAttribute(
+                "placeholder",
+                "Enter a name"
+            );
+            nameInputField.style.border = "1px solid #f0f0f0"
+            cell2.appendChild(nameInputField); // Append the name input field to the cell
+            // nameInputField.addEventListener("input", updateSpin);
+
+            const deleteButton =
+                document.createElement("img");
+
+            deleteButton.src =
+                "https://media.geeksforgeeks.org/wp-content/uploads/20240108145807/bin.png";
+            deleteButton.style.width = "23px";
+            deleteButton.style.height = "25px";
+            deleteButton.style.margin = "auto";
+            deleteButton.setAttribute(
+                "class",
+                "deleteBtn"
+            );
+            cell3.appendChild(deleteButton); // Append the delete button to the cell
+
+            deleteButton.addEventListener(
+                "click",
+                function () {
+                    const rowIndex =
+                        this.parentNode.parentNode
+                            .rowIndex;
+                    const deletedName =
+                        defaultNames[rowIndex - 1];
+                    defaultNames.splice(
+                        rowIndex - 1,
+                        1
+                    ); // Remove the deleted name from defaultNames array
+                    document
+                        .getElementById("nameTable")
+                        .deleteRow(rowIndex);
+                    updateSerialNumbers();
+                    updateDefaultNames(); // Update defaultNames after deletion
+                    updateSpin();
+                }
+            );
+
+            // Add event listener for the input field to enable editing
+            nameInputField.addEventListener(
+                "input",
+                function () {
+                    const newName = this.value.trim();
+                    if (newName !== "") {
+                        this.value = newName;
+                        const rowIndex =
+                            this.parentNode.parentNode
+                                .rowIndex - 1;
+                        defaultNames[rowIndex] =
+                            newName; // Update defaultNames with the edited name
+                    } else {
+                        const rowIndex =
+                            this.parentNode.parentNode
+                                .rowIndex - 1;
+
+                        defaultNames[rowIndex] =
+                            "no Name";
+                    }
+                    updateSpin();
+                }
+            );
+        };
+
+        // Function to update defaultNames after addition or deletion
+        const updateDefaultNames = () => {
+            defaultNames = []; // Reset defaultNames array
+            const tableRows = document.querySelectorAll(
+                "#nameTable tbody tr"
+            );
+            tableRows.forEach((row) => {
+                const nameInput = row.querySelector(
+                    "td:nth-child(2) input"
+                );
+                const newName = nameInput.value.trim();
+                if (newName !== "") {
+                    defaultNames.push(newName); // Update defaultNames with the names in the table
+                }
+            });
+
+            // Fill defaultNames array with additional names if table rows exceed 6
+            if (
+                tableRows.length > defaultNames.length
+            ) {
+                for (
+                    let i = defaultNames.length;
+                    i < tableRows.length;
+                    i++
+                ) {
+                    const nameInput = tableRows[
+                        i
+                    ].querySelector(
+                        "td:nth-child(2) input"
+                    );
+                    const newName =
+                        nameInput.value.trim();
+                    if (newName !== "") {
+                        defaultNames.push(newName); // Add new names to defaultNames array
+                    }
+                }
+            }
+            console.log(defaultNames);
+        };
+
+        // Function to update serial numbers after a deletion
+        const updateSerialNumbers = () => {
+            const tableRows = document.querySelectorAll(
+                "#nameTable tbody tr"
+            );
+            serialNumber = 0;
+            tableRows.forEach((row) => {
+                const cell1 = row.cells[0];
+                serialNumber++;
+                cell1.textContent = serialNumber;
+            });
+        };
+
+        // Call the function to populate the table with default names when the page loads
+        // populateDefaultNames();
+
+        // Event listener for the "Add Name" button click
+        const addNameBtn =
+            document.getElementById("addNameBtn");
+        addNameBtn.addEventListener(
+            "click",
+            addRowWithInput
+        );
+        const populateDefaultNames = () => {
+            defaultNames = [
+                "Student 1",
+                "Student 2",
+                "Student 3",
+            ]; // Array of default names
+            updateSpin();
+            defaultNames.forEach((name) => {
+                addRowWithInput(); // Add a row for each default name
+                const lastRow = document.querySelector(
+                    "#nameTable tbody tr:last-child td:nth-child(2) input"
+                );
+                lastRow.value = name;
+            });
+
+        };
+        populateDefaultNames();
+
+
+        //animation
+        let W = window.innerWidth;
+        let H = window.innerHeight;
+        const canvas =
+            document.getElementById("canvas");
+        const context = canvas.getContext("2d");
+        const maxConfettis = 150;
+        const particles = [];
+        let animationStarted = false;
+
+        const possibleColors = [
+            "DodgerBlue",
+            "OliveDrab",
+            "Gold",
+            "Pink",
+            "SlateBlue",
+            "LightBlue",
+            "Gold",
+            "Violet",
+            "PaleGreen",
+            "SteelBlue",
+            "SandyBrown",
+            "Chocolate",
+            "Crimson",
+        ];
+
+        function randomFromTo(from, to) {
+            return Math.floor(
+                Math.random() * (to - from + 1) + from
+            );
+        }
+
+        function confettiParticle() {
+            this.x = Math.random() * W; // x
+            this.y = Math.random() * H - H; // y
+            this.r = randomFromTo(11, 33); // radius
+            this.d = Math.random() * maxConfettis + 11;
+            this.color =
+                possibleColors[
+                Math.floor(
+                    Math.random() *
+                    possibleColors.length
+                )
+                ];
+            this.tilt =
+                Math.floor(Math.random() * 33) - 11;
+            this.tiltAngleIncremental =
+                Math.random() * 0.07 + 0.05;
+            this.tiltAngle = 0;
+
+            this.draw = function () {
+                context.beginPath();
+                context.lineWidth = this.r / 2;
+                context.strokeStyle = this.color;
+                context.moveTo(
+                    this.x + this.tilt + this.r / 3,
+                    this.y
+                );
+                context.lineTo(
+                    this.x + this.tilt,
+                    this.y + this.tilt + this.r / 5
+                );
+                return context.stroke();
+            };
+        }
+
+        function Draw() {
+            if (!animationStarted) return; // Stop the animation if it's not started
+            console.log("animation");
+
+            const results = [];
+            requestAnimationFrame(Draw);
+
+            context.clearRect(
+                0,
+                0,
+                W,
+                window.innerHeight
+            );
+
+            for (var i = 0; i < maxConfettis; i++) {
+                results.push(particles[i].draw());
+            }
+
+            let particle = {};
+            let remainingFlakes = 0;
+            for (var i = 0; i < maxConfettis; i++) {
+                particle = particles[i];
+
+                particle.tiltAngle +=
+                    particle.tiltAngleIncremental;
+                particle.y +=
+                    (Math.cos(particle.d) +
+                        3 +
+                        particle.r / 2) /
+                    2;
+                particle.tilt =
+                    Math.sin(
+                        particle.tiltAngle - i / 3
+                    ) * 15;
+
+                if (particle.y <= H) remainingFlakes++;
+
+                if (
+                    particle.x > W + 30 ||
+                    particle.x < -30 ||
+                    particle.y > H
+                ) {
+                    particle.x = Math.random() * W;
+                    particle.y = -30;
+                    particle.tilt =
+                        Math.floor(Math.random() * 10) -
+                        20;
+                }
+            }
+
+            return results;
+        }
+
+        window.addEventListener(
+            "resize",
+            function () {
+                W = window.innerWidth;
+                H = window.innerHeight;
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            },
+            false
+        );
+
+        function startAnimation() {
+            canvas.style.display = "block";
+
+            if (!animationStarted) {
+                // Push new confetti objects to `particles[]`
+                for (var i = 0; i < maxConfettis; i++) {
+                    particles.push(
+                        new confettiParticle()
+                    );
+                }
+
+                // Initialize
+                canvas.width = W;
+                canvas.height = H;
+                animationStarted = true;
+                Draw();
+
+                setTimeout(() => {
+                    animationStarted = false;
+                    canvas.style.display = "none";
+                }, 3000);
+            }
+        }
+
+
+
+        restData.addEventListener('click', () => {
+            location.reload();
+        })
+    </script>
+</body>
+
+</html>
